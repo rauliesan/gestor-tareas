@@ -1,0 +1,20 @@
+FROM php:8.2-apache
+
+# Instalar dependencias necesarias
+RUN apt-get update && apt-get install -y \
+    libzip-dev \
+    zip \
+    unzip
+
+# Instalar y habilitar extensiones PHP
+RUN docker-php-ext-install mysqli pdo pdo_mysql zip
+
+# Habilitar mod_rewrite para Apache
+RUN a2enmod rewrite
+
+# Configurar permisos correctos para el directorio web
+RUN chown -R www-data:www-data /var/www/html
+
+# Verificar que las extensiones estén habilitadas
+RUN php -m | grep -i mysqli
+RUN php -m | grep -i pdo

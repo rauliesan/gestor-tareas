@@ -1,0 +1,57 @@
+version: '3'
+
+services:
+  web:
+    image: php:8.2-apache
+    container_name: gestor_tareas_web
+    ports:
+      - "8000:80"
+    volumes:
+      - ./www:/var/www/html
+    depends_on:
+      - db
+    networks:
+      - gestor_network
+    restart: always
+    # Instalamos extensiones PHP necesarias
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+
+  db:
+    image: mysql:8.0
+    container_name: gestor_tareas_db
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./sql:/docker-entrypoint-initdb.d
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: gestor_tareas
+      MYSQL_USER: gestor_user
+      MYSQL_PASSWORD: gestor_password
+    networks:
+      - gestor_network
+    restart: always
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: gestor_tareas_phpmyadmin
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: db
+      PMA_USER: root
+      PMA_PASSWORD: root_password
+    depends_on:
+      - db
+    networks:
+      - gestor_network
+    restart: always
+
+networks:
+  gestor_network:
+
+volumes:
+  mysql_data:
